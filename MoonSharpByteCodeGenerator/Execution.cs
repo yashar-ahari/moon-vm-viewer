@@ -74,10 +74,43 @@ namespace MoonSharpByteCodeGenerator
 
             if (debugContext.v_Stack != null)
             {
-                Vstack.Items.Clear();
+                vStackTree.Nodes.Clear();
+                //Vstack.Items.Clear();
                 for (int i = debugContext.v_Stack.Count - 1; i >= 0; --i)
                 {
-                    Vstack.Items.Add(debugContext.v_Stack[i]);
+                    DynValue item = debugContext.v_Stack[i];
+
+                    if(item.Type == DataType.Table)
+                    {
+                        TreeNode node = new TreeNode("Table");
+                        PushTable("table", item, node, 0, false);
+                        vStackTree.Nodes.Add(node);
+                    }
+                    else if (item.Type == DataType.UserData)
+                    {
+                        var useDD = item.UserData;
+                        TreeNode tnode = new TreeNode($"(UserData)");
+
+                        TreeNode userValue = new TreeNode($"{useDD.UserValue?.Type}: {useDD.UserValue}");
+
+                        tnode.Nodes.Add(userValue);
+
+                        TreeNode objNode = new TreeNode($"{useDD.Object}");
+
+                        tnode.Nodes.Add(objNode);
+
+                        TreeNode dsc = new TreeNode($"{useDD.Descriptor}");
+
+                        tnode.Nodes.Add(dsc);
+
+                        vStackTree.Nodes.Add(tnode);
+                    }
+                    else
+                    {
+                        TreeNode treeNode = new TreeNode($"{item}");
+                        vStackTree.Nodes.Add(treeNode);
+                    }
+                    //Vstack.Items.Add(debugContext.v_Stack[i]);
                 }
             }
             if (debugContext.e_Stack != null)
@@ -90,6 +123,8 @@ namespace MoonSharpByteCodeGenerator
             }
         }
 
+
+
         private void AddFrameToTree(CallStackItem stackItem)
         {
             TreeNode node = new TreeNode($"Stack Item {stackItem.Flags}, base {stackItem.BasePointer}, returns {stackItem.ReturnAddress}");
@@ -97,7 +132,7 @@ namespace MoonSharpByteCodeGenerator
             {
                 foreach (var item in stackItem.LocalScope)
                 {
-                    if(item ==  null || item.Type == DataType.Nil)
+                    if (item == null || item.Type == DataType.Nil)
                     {
                         node.Nodes.Add(new TreeNode("Nil"));
                     }
@@ -113,6 +148,25 @@ namespace MoonSharpByteCodeGenerator
                         //}
                         //node.Nodes.Add(treeNode);
                     }
+                    else if (item.Type == DataType.UserData)
+                    {
+                        var useDD = item.UserData;
+                        TreeNode tnode = new TreeNode($"(UserData)");
+
+                        TreeNode userValue = new TreeNode($"{useDD.UserValue?.Type}: {useDD.UserValue}");
+
+                        tnode.Nodes.Add(userValue);
+
+                        TreeNode objNode = new TreeNode($"{useDD.Object}");
+
+                        tnode.Nodes.Add(objNode);
+
+                        TreeNode dsc = new TreeNode($"{useDD.Descriptor}");
+
+                        tnode.Nodes.Add(dsc);
+
+                        node.Nodes.Add(tnode);
+                    }
                     else
                     {
                         TreeNode childNode = new TreeNode(item.ToString());
@@ -125,26 +179,47 @@ namespace MoonSharpByteCodeGenerator
             e_StackTree.Nodes.Add(node);
         }
 
-        void PushTable(string name, DynValue table, TreeNode root, int level = 0)
+        void PushTable(string name, DynValue table, TreeNode root, int level = 0, bool newNode = true)
         {
-            if(level > 10)
+            if (level > 10)
             {
                 return;
             }
-            TreeNode treeNode = new TreeNode($"{name} : (Table)");
+            TreeNode? treeNode = null;
+            if (newNode)
+            {
+                treeNode = new TreeNode($"{name} : (Table)");
+            }
             foreach (var subitem in table.Table.Pairs)
             {
                 if (subitem.Value.Type == DataType.Table)
                 {
-                    PushTable(subitem.Key.String, subitem.Value, treeNode, level+1);
+                    if (newNode)
+                    {
+                        PushTable(subitem.Key.String, subitem.Value, treeNode, level + 1);
+                    }
+                    else
+                    {
+                        PushTable(subitem.Key.String, subitem.Value, root, level + 1);
+                    }
                 }
                 else
                 {
                     TreeNode tableItemNode = new TreeNode($"{subitem.Key} : {subitem.Value}");
-                    treeNode.Nodes.Add(tableItemNode);
+                    if (newNode)
+                    {
+                        treeNode.Nodes.Add(tableItemNode);
+                    }
+                    else
+                    {
+                        root.Nodes.Add(tableItemNode);
+                    }
                 }
             }
-            root.Nodes.Add(treeNode);
+            if (newNode)
+            {
+                root.Nodes.Add(treeNode);
+            }
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)

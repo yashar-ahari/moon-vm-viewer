@@ -45,9 +45,9 @@
             panel1 = new Panel();
             splitContainer1 = new SplitContainer();
             groupBox2 = new GroupBox();
-            Vstack = new ListBox();
             groupBox3 = new GroupBox();
             e_StackTree = new TreeView();
+            vStackTree = new TreeView();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NextInstructions).BeginInit();
             panel2.SuspendLayout();
@@ -213,7 +213,7 @@
             // 
             // groupBox2
             // 
-            groupBox2.Controls.Add(Vstack);
+            groupBox2.Controls.Add(vStackTree);
             groupBox2.Dock = DockStyle.Fill;
             groupBox2.Location = new Point(0, 0);
             groupBox2.Name = "groupBox2";
@@ -221,18 +221,6 @@
             groupBox2.TabIndex = 0;
             groupBox2.TabStop = false;
             groupBox2.Text = "V Stack";
-            // 
-            // Vstack
-            // 
-            Vstack.Dock = DockStyle.Fill;
-            Vstack.FormattingEnabled = true;
-            Vstack.HorizontalScrollbar = true;
-            Vstack.ItemHeight = 25;
-            Vstack.Items.AddRange(new object[] { "A", "V", "B", "d", "R", "D" });
-            Vstack.Location = new Point(3, 27);
-            Vstack.Name = "Vstack";
-            Vstack.Size = new Size(692, 815);
-            Vstack.TabIndex = 0;
             // 
             // groupBox3
             // 
@@ -252,6 +240,14 @@
             e_StackTree.Name = "e_StackTree";
             e_StackTree.Size = new Size(712, 815);
             e_StackTree.TabIndex = 0;
+            // 
+            // vStackTree
+            // 
+            vStackTree.Dock = DockStyle.Fill;
+            vStackTree.Location = new Point(3, 27);
+            vStackTree.Name = "vStackTree";
+            vStackTree.Size = new Size(692, 815);
+            vStackTree.TabIndex = 0;
             // 
             // Execution
             // 
@@ -296,7 +292,7 @@
         private SplitContainer splitContainer1;
         private GroupBox groupBox2;
         private GroupBox groupBox3;
-        private ListBox Vstack;
         private TreeView e_StackTree;
+        private TreeView vStackTree;
     }
 }

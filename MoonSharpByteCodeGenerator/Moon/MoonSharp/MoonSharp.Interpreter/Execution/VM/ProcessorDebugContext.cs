@@ -32,6 +32,14 @@ namespace MoonSharpByteCodeGenerator.Moon.MoonSharp.MoonSharp.Interpreter.Execut
             entryPoint.Coroutine.AutoYieldCounter = 1; // run single instruction at a time.
         }
 
+        public void LoadDump(Stream stream)
+        {
+            DynValue load_ret = script.LoadStream(stream);
+            entryPoint = script.CreateCoroutine(load_ret);
+            entryPoint.Coroutine.SetDebugProcessorReferences(this);
+            entryPoint.Coroutine.AutoYieldCounter = 1; // run single instruction at a time.
+        }
+
         public void NextStep()
         {
             if(entryPoint != null && !complete)

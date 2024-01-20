@@ -1,4 +1,5 @@
 using MoonSharp.Interpreter;
+using MoonSharpByteCodeGenerator.CustomUserData;
 
 namespace MoonSharpByteCodeGenerator
 {
@@ -11,15 +12,16 @@ namespace MoonSharpByteCodeGenerator
 
         Execution? execution;
 
+        public static Script ScriptInstance { get; private set; }
+
         public Form1()
         {
             InitializeComponent();
         }
 
-
-
-        private void btnGen_Click(object sender, EventArgs e)
+        private void ReloadProcessor(string code = null, Stream dump = null)
         {
+            if (code == null && dump == null) return;
             resultTextBox.Text = string.Empty;
             bool showBackByteCode = false;
             if (byteCode != null)
@@ -33,8 +35,18 @@ namespace MoonSharpByteCodeGenerator
             {
 
                 script = new Script();
+                ScriptInstance = script;
+                UserData.RegisterAssembly();
+                script.Globals["Vector3"] = typeof(MoonVector3);
 
-                script.ProcessorDebugContext.LoadString(luaTextBox.Text);
+                if(code != null)
+                {
+                    script.ProcessorDebugContext.LoadString(code);
+                }
+                if(dump != null)
+                {
+                    script.ProcessorDebugContext.LoadDump(dump);
+                }
 
                 resultTextBox.Text = script.DumpByteCode(ref offset, true);
 
@@ -53,7 +65,11 @@ namespace MoonSharpByteCodeGenerator
                 resultTextBox.SelectAll();
                 resultTextBox.SelectionColor = Color.DarkRed;
             }
+        }
 
+        private void btnGen_Click(object sender, EventArgs e)
+        {
+            ReloadProcessor(luaTextBox.Text);
         }
 
         private void showByteTable_Click(object sender, EventArgs e)
@@ -77,7 +93,7 @@ namespace MoonSharpByteCodeGenerator
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if(execution != null)
+            if (execution != null)
             {
                 execution.ReloadScript(script);
                 Show();
@@ -86,6 +102,20 @@ namespace MoonSharpByteCodeGenerator
             {
                 execution = new Execution(script);
                 execution.Show();
+            }
+        }
+
+        private void loadDumpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            var result = openFileDialog.ShowDialog();
+            if(result == DialogResult.OK)
+            {
+                FileInfo fileInfo = new FileInfo(openFileDialog.FileName);
+                if (fileInfo.Exists)
+                {
+                    ReloadProcessor(dump:fileInfo.OpenRead());
+                }
             }
         }
     }
