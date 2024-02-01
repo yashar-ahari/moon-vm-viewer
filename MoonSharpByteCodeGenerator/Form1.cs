@@ -1,5 +1,8 @@
 using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Serialization;
 using MoonSharpByteCodeGenerator.CustomUserData;
+using net2MoonWorkBench.MoonAdditions.Types;
+using System.Numerics;
 
 namespace MoonSharpByteCodeGenerator
 {
@@ -30,6 +33,8 @@ namespace MoonSharpByteCodeGenerator
             }
 
 
+            
+
 
             try
             {
@@ -37,15 +42,27 @@ namespace MoonSharpByteCodeGenerator
                 script = new Script();
                 ScriptInstance = script;
                 UserData.RegisterAssembly();
-                script.Globals["Vector3"] = typeof(MoonVector3);
 
-                if(code != null)
+                script.Globals[typeof(Console).FullName] = typeof(Moon_System_Console);
+                script.Globals[typeof(object).FullName] = typeof(Moon_System_Object);
+                script.Globals[typeof(string).FullName] = typeof(Moon_System_String);
+                script.Globals[typeof(int).FullName] = typeof(Moon_System_Int32);
+
+                //Table __dump = UserData.GetDescriptionOfRegisteredTypes(true);
+
+                //File.WriteAllText(@"C:\Users\yashar.ahari\Desktop\MoonCILDump\hwDump.txt", __dump.Serialize());
+
+                //SPD.RegisterType(typeof(Vector3), script.Globals);
+
+                if (code != null)
                 {
                     script.ProcessorDebugContext.LoadString(code);
                 }
                 if(dump != null)
                 {
                     script.ProcessorDebugContext.LoadDump(dump);
+                    dump.Close();
+
                 }
 
                 resultTextBox.Text = script.DumpByteCode(ref offset, true);
@@ -114,7 +131,10 @@ namespace MoonSharpByteCodeGenerator
                 FileInfo fileInfo = new FileInfo(openFileDialog.FileName);
                 if (fileInfo.Exists)
                 {
-                    ReloadProcessor(dump:fileInfo.OpenRead());
+                    using (Stream stream = fileInfo.OpenRead())
+                    {
+                        ReloadProcessor(dump: stream);
+                    }
                 }
             }
         }
