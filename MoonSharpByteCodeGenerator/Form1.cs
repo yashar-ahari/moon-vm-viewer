@@ -3,6 +3,7 @@ using MoonSharp.Interpreter.Serialization;
 using MoonSharpByteCodeGenerator.CustomUserData;
 using net2MoonWorkBench.MoonAdditions.Types;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace MoonSharpByteCodeGenerator
 {
@@ -47,6 +48,8 @@ namespace MoonSharpByteCodeGenerator
                 script.Globals[typeof(object).FullName] = typeof(Moon_System_Object);
                 script.Globals[typeof(string).FullName] = typeof(Moon_System_String);
                 script.Globals[typeof(int).FullName] = typeof(Moon_System_Int32);
+                script.Globals["%mliruntimehandle"] = typeof(Moon_RuntimeHandle); 
+                script.Globals[typeof(RuntimeHelpers).FullName] = typeof(Moon_System_Runtime_CompilerServices_RuntimeHelpers);
 
                 //Table __dump = UserData.GetDescriptionOfRegisteredTypes(true);
 
